@@ -18,21 +18,12 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Android SDK and Accept Licenses
-      run: |
-        # Accept all Android SDK licenses automatically
-        mkdir -p $ANDROID_SDK_ROOT/licenses
-        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > $ANDROID_SDK_ROOT/licenses/android-sdk-license
-        echo "d56f5187479451eabf01fb78af6dfcb131a648b0" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
-        echo "84831b9409646a918e30573bab4c9c91346d8abd" >> $ANDROID_SDK_ROOT/licenses/android-sdk-license
-        
-        # Install necessary SDK components cleanly
-        sdkmanager --install "platforms;android-34" "build-tools;34.0.0"
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
 
     - name: Grant execute permission for gradlew and Build APK
       run: |
         chmod +x gradlew || true
-        # If gradle wrapper doesn't exist, generate standard build files first
         if [ ! -f "gradlew" ]; then
           gradle wrapper
         fi
