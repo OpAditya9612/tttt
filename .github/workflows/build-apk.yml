@@ -36,13 +36,28 @@ jobs:
         yes | sdkmanager --licenses || true
         sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
-    - name: Initialize Gradle Root Settings & Build APK
+    - name: Create Proper settings.gradle and Build APK
       run: |
-        # Ensure proper settings.gradle exists at the root so Gradle recognizes the 'app' module
-        if [ ! -f "settings.gradle" ] && [ ! -f "settings.gradle.kts" ]; then
-          echo "include(':app')" > settings.gradle
-        fi
-        
+        # Write the required Android plugin repositories to settings.gradle
+        cat << 'EOF' > settings.gradle
+        pluginManagement {
+            repositories {
+                google()
+                mavenCentral()
+                gradlePluginPortal()
+            }
+        }
+        dependencyResolutionManagement {
+            repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+            repositories {
+                google()
+                mavenCentral()
+            }
+        }
+        rootProject.name = "piratebot-tv"
+        include(':app')
+        EOF
+
         gradle wrapper || true
         chmod +x gradlew || true
         
