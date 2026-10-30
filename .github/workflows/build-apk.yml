@@ -36,9 +36,8 @@ jobs:
         yes | sdkmanager --licenses || true
         sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
-    - name: Create Proper settings.gradle and Build APK
+    - name: Setup settings.gradle and Build APK
       run: |
-        # Write the required Android plugin repositories to settings.gradle
         cat << 'EOF' > settings.gradle
         pluginManagement {
             repositories {
@@ -58,17 +57,4 @@ jobs:
         include(':app')
         EOF
 
-        gradle wrapper || true
-        chmod +x gradlew || true
-        
-        if [ -f "./gradlew" ]; then
-          ./gradlew assembleDebug
-        else
-          gradle assembleDebug
-        fi
-
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-debug-apk
-        path: app/build/outputs/apk/debug/app-debug.apk
+        gradle assembleDebug
