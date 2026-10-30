@@ -18,15 +18,9 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Setup Android SDK and Resolve Path Conflict
+    - name: Setup Android SDK Path
       run: |
-        # Use GitHub runner's pre-installed SDK location exclusively to prevent path conflicts
         export ANDROID_HOME=$ANDROID_SDK_ROOT
-        
-        # Make sure command-line tools are available
-        mkdir -p $ANDROID_HOME/cmdline-tools/latest
-        
-        # Export unified environment variables
         echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
         echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
         echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
@@ -59,4 +53,9 @@ jobs:
         include(':app')
         EOF
 
-        gradle assembleDebug
+        # Bypass AGP version check warnings on Gradle 9
+        echo "android.suppressUnsupportedCompileSdk=34" >> gradle.properties
+        echo "android.dependency.verification.clear=true" >> gradle.properties
+
+        # Build with AGP 8.5.0 plugin override or direct assemble
+        ./gradlew assembleDebug --warning-mode all || gradle assembleDebug
